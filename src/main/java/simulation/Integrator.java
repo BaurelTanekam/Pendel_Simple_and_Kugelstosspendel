@@ -1,4 +1,6 @@
-package model;
+package simulation;
+
+import model.Pendulum;
 
 public interface Integrator {
     /**

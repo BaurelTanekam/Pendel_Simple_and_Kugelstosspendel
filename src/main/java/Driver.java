@@ -1,7 +1,7 @@
-import model.EulerIntegrator;
-import model.Integrator;
+import simulation.EulerIntegrator;
+import simulation.Integrator;
 import model.Pendulum;
-import model.SimulationEngine;
+import simulation.SimulationEngine;
 import util.Logger;
 
 public class Driver {

@@ -1,5 +1,6 @@
-package model;
+package simulation;
 
+import model.Pendulum;
 import util.Logger;
 
 public class SimulationEngine {

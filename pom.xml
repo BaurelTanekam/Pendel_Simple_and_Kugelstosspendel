@@ -14,4 +14,41 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <dependencies>
+        <!--
+            JavaFX Controls: Enthält alle UI-Komponenten wie Buttons, Labels, Slider etc.
+            Dies ist die Grundlage für unsere grafische Benutzeroberfläche.
+        -->
+        <!-- Source: https://mvnrepository.com/artifact/org.openjfx/javafx-controls -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>25.0.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <!--
+            JavaFX Graphics: Für die Canvas-Zeichnung unserer Pendel-Animation.
+            Hier werden wir die Pendel, Kugeln und Kraftvektoren visualisieren.
+        -->
+        <!-- Source: https://mvnrepository.com/artifact/org.openjfx/javafx-graphics -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>25.0.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <!--
+            JavaFX FXML: Falls wir später FXML für die GUI-Gestaltung nutzen wollen.
+            FXML erlaubt es, die GUI deklarativ zu definieren, ähnlich wie HTML.
+            Optional, aber praktisch für komplexere Layouts.
+        -->
+        <!-- Source: https://mvnrepository.com/artifact/org.openjfx/javafx-fxml -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>25.0.1</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
 </project>
