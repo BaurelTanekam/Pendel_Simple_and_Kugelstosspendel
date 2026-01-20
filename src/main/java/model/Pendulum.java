@@ -168,7 +168,7 @@ public class Pendulum {
      * @return X-Position relativ zum Ursprung
      */
     public double getX() {
-        return pivotX + length * Math.sin(state.getTheta());
+        return pivotX - length * Math.sin(state.getTheta());
     }
 
     /**

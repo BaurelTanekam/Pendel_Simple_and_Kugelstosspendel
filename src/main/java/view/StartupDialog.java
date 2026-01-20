@@ -22,18 +22,19 @@ import javafx.stage.Stage;
  * ungültigen oder problematischen Werten.
  */
 public class StartupDialog extends Stage {
+    // Ergebnis-Objekt, das die Konfiguration speichert
     private SimulationConfig config;
 
-    //UI-Komponent
+    // UI-Komponenten für Einzelpendel
     private RadioButton radioEinzelpendel;
     private RadioButton radioKugelstosspendel;
 
-    //Paramater
+    // Gemeinsame Parameter
     private TextField textMasse;
     private TextField textRadius;
     private TextField textStartwinkel;
 
-    //Parameter für Kugelstoßpendel
+    // Parameter nur für Kugelstoßpendel
     private Spinner<Integer> spinnerAnzahlKugeln;
     private Spinner<Integer> spinnerAusgelenkt;
     private TextField textRestitution;
@@ -51,16 +52,20 @@ public class StartupDialog extends Stage {
         initUI();
     }
 
+    /**
+     * Initialisiert die Benutzeroberfläche des Dialogs.
+     */
     private void initUI() {
         setTitle("Pendelsimulation - Konfiguration");
-        initModality(Modality.APPLICATION_MODAL);   //
+        initModality(Modality.APPLICATION_MODAL);
         setResizable(false);
 
         VBox mainLayout = new VBox(15);
         mainLayout.setPadding(new Insets(20));
-        mainLayout.setStyle("-fx-background-color: #f0f0f0");
+        mainLayout.setStyle("-fx-background-color: #f0f0f0;");
 
-        Label titleLabel = new Label("Willkommen zur Pendesimulation");
+        // Titel
+        Label titleLabel = new Label("Willkommen zur Pendelsimulation");
         titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
         Label subtitleLabel = new Label("Bitte wählen Sie den Simulationsmodus und die Parameter:");
@@ -123,7 +128,7 @@ public class StartupDialog extends Stage {
         radioEinzelpendel.setToggleGroup(modusGroup);
         radioEinzelpendel.setSelected(true);
 
-        radioKugelstosspendel = new RadioButton("Kugelstoßpendel");
+        radioKugelstosspendel = new RadioButton("Kugelstoßpendel (Newton's Cradle)");
         radioKugelstosspendel.setToggleGroup(modusGroup);
 
         // Event-Handler für Modus-Wechsel
@@ -176,6 +181,9 @@ public class StartupDialog extends Stage {
         winkelLabel.setPrefWidth(180);
         textStartwinkel = createValidatedTextField("10.0", "^[0-9]*\\.?[0-9]+$");
 
+        Label winkelInfo = new Label("(+ = gegen Uhrzeigersinn/links)");
+        winkelInfo.setStyle("-fx-font-size: 10px; -fx-text-fill: #666;");
+
         // Event-Handler für Winkel-Warnung
         textStartwinkel.textProperty().addListener((obs, oldVal, newVal) -> {
             validateWinkel();
@@ -186,7 +194,6 @@ public class StartupDialog extends Stage {
         box.getChildren().addAll(label, masseBox, radiusBox, winkelBox);
         return box;
     }
-
 
     /**
      * Erstellt die Kugelstoßpendel-spezifischen Parameter.
