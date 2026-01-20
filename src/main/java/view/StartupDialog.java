@@ -9,19 +9,20 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-/**
- * StartupDialog - Der Konfigurationsdialog beim Programmstart.
- *
- * Dieser Dialog erscheint beim Start der Anwendung und erlaubt dem Benutzer,
- * alle wichtigen Parameter der Simulation einzustellen:
- * - Modus: Einzelpendel oder Kugelstoßpendel
- * - Physikalische Parameter: Masse, Radius, Startwinkel
- * - Für Kugelstoßpendel: Anzahl der Kugeln, Restitutionskoeffizient
- *
- * Der Dialog validiert alle Eingaben in Echtzeit und zeigt Warnungen bei
- * ungültigen oder problematischen Werten.
- */
+    /**
+     * StartupDialog - Der Konfigurationsdialog beim Programmstart.
+     *
+     * Dieser Dialog erscheint beim Start der Anwendung und erlaubt dem Benutzer,
+     * alle wichtigen Parameter der Simulation einzustellen:
+     * - Modus: Einzelpendel oder Kugelstoßpendel
+     * - Physikalische Parameter: Masse, Radius, Startwinkel
+     * - Für Kugelstoßpendel: Anzahl der Kugeln, Restitutionskoeffizient
+     *
+     * Der Dialog validiert alle Eingaben in Echtzeit und zeigt Warnungen bei
+     * ungültigen oder problematischen Werten.
+     */
 public class StartupDialog extends Stage {
+
     // Ergebnis-Objekt, das die Konfiguration speichert
     private SimulationConfig config;
 
@@ -33,6 +34,8 @@ public class StartupDialog extends Stage {
     private TextField textMasse;
     private TextField textRadius;
     private TextField textStartwinkel;
+
+    private ComboBox<String> comboIntegrator;
 
     // Parameter nur für Kugelstoßpendel
     private Spinner<Integer> spinnerAnzahlKugeln;
@@ -82,6 +85,9 @@ public class StartupDialog extends Stage {
         // === GEMEINSAME PARAMETER ===
         VBox gemeinsameBox = createGemeinsameParameter();
 
+        // === INTEGRATOR-AUSWAHL === (NEU in Phase 3)
+        VBox integratorBox = createIntegratorSelection();
+
         // === KUGELSTOSSPENDEL-SPEZIFISCHE PARAMETER ===
         kugelstosspendelBox = createKugelstossppendelParameter();
         kugelstosspendelBox.setVisible(false);
@@ -104,6 +110,7 @@ public class StartupDialog extends Stage {
                 modusBox,
                 separator2,
                 gemeinsameBox,
+                integratorBox,
                 kugelstosspendelBox,
                 warningLabel,
                 buttonBox
@@ -189,9 +196,44 @@ public class StartupDialog extends Stage {
             validateWinkel();
         });
 
-        winkelBox.getChildren().addAll(winkelLabel, textStartwinkel);
+        winkelBox.getChildren().addAll(winkelLabel, textStartwinkel, winkelInfo);
 
         box.getChildren().addAll(label, masseBox, radiusBox, winkelBox);
+        return box;
+    }
+
+    /**
+     * Erstellt die Integrator-Auswahl (NEU in Phase 3).
+     */
+    private VBox createIntegratorSelection() {
+        VBox box = new VBox(10);
+        box.setStyle("-fx-background-color: #fff3e0; -fx-padding: 10; -fx-border-color: #ff9800; -fx-border-radius: 5;");
+
+        Label label = new Label("Numerischer Integrator:");
+        label.setStyle("-fx-font-weight: bold;");
+
+        HBox integratorRow = new HBox(10);
+        integratorRow.setAlignment(Pos.CENTER_LEFT);
+
+        Label integratorLabel = new Label("Verfahren:");
+        integratorLabel.setPrefWidth(180);
+
+        comboIntegrator = new ComboBox<>();
+        comboIntegrator.getItems().addAll("Euler-Verfahren", "Heun-Verfahren");
+        comboIntegrator.setValue("Heun-Verfahren"); // Heun als Standard (besser!)
+        comboIntegrator.setPrefWidth(200);
+
+        integratorRow.getChildren().addAll(integratorLabel, comboIntegrator);
+
+        // Informationstext
+        Label infoLabel = new Label(
+                "• Euler: Einfach, schnell, aber weniger genau\n" +
+                        "• Heun: Präziser, bessere Energieerhaltung (empfohlen!)"
+        );
+        infoLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #666;");
+        infoLabel.setWrapText(true);
+
+        box.getChildren().addAll(label, integratorRow, infoLabel);
         return box;
     }
 
@@ -346,6 +388,7 @@ public class StartupDialog extends Stage {
         config.masse = Double.parseDouble(textMasse.getText());
         config.radius = Double.parseDouble(textRadius.getText());
         config.startWinkelGrad = Double.parseDouble(textStartwinkel.getText());
+        config.integratorName = comboIntegrator.getValue(); // NEU in Phase 3
 
         if (config.istKugelstosspendel) {
             config.anzahlKugeln = spinnerAnzahlKugeln.getValue();

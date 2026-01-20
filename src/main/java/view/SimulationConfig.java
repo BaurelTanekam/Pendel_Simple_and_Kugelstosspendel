@@ -11,4 +11,5 @@ public class SimulationConfig {
     public int anzahlKugeln;
     public int anzahlAusgelenkt;
     public double restitutionskoeffizient;
+    public String integratorName;
 }
