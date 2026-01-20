@@ -1,11 +1,8 @@
 import javafx.stage.Stage;
-import util.IntegratorComparison;
 import util.Logger;
 import view.MainWindow;
 import view.SimulationConfig;
 import view.StartupDialog;
-
-import java.util.List;
 
 public class SimulationStarter {
     public void launchSimulation(Stage primaryStage) {
