@@ -63,7 +63,7 @@ public class StartupDialog extends Stage {
         initModality(Modality.APPLICATION_MODAL);
         setResizable(false);
 
-        VBox mainLayout = new VBox(15);
+        VBox mainLayout = new VBox(5);
         mainLayout.setPadding(new Insets(20));
         mainLayout.setStyle("-fx-background-color: #f0f0f0;");
 
@@ -124,7 +124,7 @@ public class StartupDialog extends Stage {
      * Erstellt die Modus-Auswahl (Radio-Buttons).
      */
     private VBox createModusSelection() {
-        VBox box = new VBox(10);
+        VBox box = new VBox(5);
 
         Label label = new Label("Simulationsmodus:");
         label.setStyle("-fx-font-weight: bold;");
@@ -159,7 +159,7 @@ public class StartupDialog extends Stage {
      * Erstellt die gemeinsamen Parameter-Eingabefelder.
      */
     private VBox createGemeinsameParameter() {
-        VBox box = new VBox(10);
+        VBox box = new VBox(5);
         box.setStyle("-fx-background-color: white; -fx-padding: 10; -fx-border-color: #ccc; -fx-border-radius: 5;");
 
         Label label = new Label("Physikalische Parameter:");
@@ -388,7 +388,7 @@ public class StartupDialog extends Stage {
         config.masse = Double.parseDouble(textMasse.getText());
         config.radius = Double.parseDouble(textRadius.getText());
         config.startWinkelGrad = Double.parseDouble(textStartwinkel.getText());
-        config.integratorName = comboIntegrator.getValue(); // NEU in Phase 3
+        config.integratorName = comboIntegrator.getValue();
 
         if (config.istKugelstosspendel) {
             config.anzahlKugeln = spinnerAnzahlKugeln.getValue();
