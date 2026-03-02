@@ -10,31 +10,25 @@ public class SimulationStarter {
         logger.logInfo("=== Pendelsimulation gestartet ===");
         logger.logInfo("JavaFX initialized successfully");
 
-        // Zeige Startdialog
         StartupDialog dialog = new StartupDialog();
         dialog.showAndWait();
 
-        // Hole Konfiguration
         SimulationConfig config = dialog.getConfig();
 
         if (config == null) {
-            // Benutzer hat abgebrochen
             logger.logInfo("User cancelled startup dialog. Exiting.");
             logger.close();
             System.exit(0);
             return;
         }
 
-        // Logge die gewählte Konfiguration
         logConfiguration(logger, config);
 
-        // Erstelle und zeige Hauptfenster
         MainWindow mainWindow = new MainWindow(config);
         mainWindow.show();
 
         logger.logInfo("Main window opened. Simulation ready.");
 
-        // Cleanup beim Schließen
         mainWindow.setOnCloseRequest(e -> {
             logger.logInfo("Application closing");
             logger.close();

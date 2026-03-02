@@ -18,7 +18,7 @@ import model.PhysicsState;
 import simulation.EulerIntegrator;
 import simulation.HeunIntegrator;
 import simulation.Integrator;
-import simulation.SimulationEngine;
+import controller.SimulationEngine;
 import util.Logger;
 
 import java.util.ArrayList;
@@ -43,14 +43,11 @@ public class MainWindow extends Stage {
     private static final double PENDULUM_LENGTH = 1.0;
     private static final double TIME_STEP = 0.001;
 
-    // Canvas-Größe
     private static final int CANVAS_WIDTH = 500;
     private static final int CANVAS_HEIGHT = 300;
 
-    // Skalierungsfaktor: Meter zu Pixel
     private double scale;
 
-    // Simulation
     private List<Pendulum> pendulums;
     private List<SimulationEngine> engines;
     private Integrator integrator;
@@ -65,7 +62,7 @@ public class MainWindow extends Stage {
     private Label energyLabel;
     private List<EnergyBar> energyBars;
 
-    // Kontroll-Komponenten
+    // Kontroll
     private Button btnStart;
     private Button btnPause;
     private Button btnStop;
@@ -81,7 +78,6 @@ public class MainWindow extends Stage {
     private boolean showGravityForce = false;
     private double initialTotalEnergy = 0.0;
 
-    // Logger
     private Logger logger;
 
     /**
@@ -115,14 +111,11 @@ public class MainWindow extends Stage {
         double startWinkelRad = Math.toRadians(config.startWinkelGrad);
 
         if (config.istKugelstosspendel) {
-            // Mehrere Pendel für Kugelstoßpendel
-            // Die Kugeln werden symmetrisch um x=0 angeordnet
             double spacing = 2.0 * config.radius; // Kugeln berühren sich fast
             double totalWidth = (config.anzahlKugeln - 1) * spacing;
             double startX = -totalWidth / 2.0;
 
-            // WICHTIG: Positive Winkel bedeuten Auslenkung nach LINKS (gegen Uhrzeigersinn)
-            // Die linken Kugeln (kleinerer Index) werden ausgelenkt
+            // Die linken Kugeln (kleinerer Index)
             for (int i = 0; i < config.anzahlKugeln; i++) {
                 double pivotX = startX + i * spacing;
                 // Die ersten anzahlAusgelenkt Kugeln werden ausgelenkt
@@ -142,8 +135,7 @@ public class MainWindow extends Stage {
                 engines.add(new SimulationEngine(pendulum, integrator, TIME_STEP));
             }
         } else {
-            // Einzelnes Pendel
-            // Positiver Winkel = Auslenkung nach links
+
             Pendulum pendulum = new Pendulum(
                     PENDULUM_LENGTH,
                     config.masse,
@@ -158,7 +150,7 @@ public class MainWindow extends Stage {
             engines.add(new SimulationEngine(pendulum, integrator, TIME_STEP));
         }
 
-        // Berechne initiale Gesamtenergie
+
         for (Pendulum p : pendulums) {
             initialTotalEnergy += p.getTotalEnergy();
         }
@@ -175,8 +167,7 @@ public class MainWindow extends Stage {
      * Berechnet den Skalierungsfaktor basierend auf Anzahl und Größe der Kugeln.
      */
     private void calculateScale() {
-        // Wir wollen, dass das Pendel gut sichtbar ist
-        // Pendellänge + Radius sollte etwa 40% der Canvas-Höhe einnehmen
+
         double maxLength = PENDULUM_LENGTH + config.radius;
         scale = (CANVAS_HEIGHT * 0.4) / maxLength;
     }
@@ -192,22 +183,17 @@ public class MainWindow extends Stage {
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: #f5f5f5;");
 
-        // Oben: Kontrollpanel
         root.setTop(createControlPanel());
 
-        // Mitte: Canvas
         root.setCenter(createCanvasPanel());
 
-        // Rechts: Statusanzeigen
         root.setRight(createStatusPanel());
 
-        // Unten: Konsolenausgabe
         root.setBottom(createConsolePanel());
 
         Scene scene = new Scene(root, 600, 400);
         setScene(scene);
 
-        // Initial zeichnen
         drawSimulation();
     }
 
@@ -219,7 +205,6 @@ public class MainWindow extends Stage {
         box.setPadding(new Insets(10));
         box.setStyle("-fx-background-color: white; -fx-border-color: #ccc; -fx-border-width: 0 0 1 0;");
 
-        // Erste Zeile: Hauptkontrollbuttons
         HBox buttonRow = new HBox(10);
         buttonRow.setAlignment(Pos.CENTER_LEFT);
 
@@ -243,11 +228,9 @@ public class MainWindow extends Stage {
 
         buttonRow.getChildren().addAll(btnStart, btnPause, btnStop, btnReset, btnStep);
 
-        // Zweite Zeile: Geschwindigkeit und Optionen
         HBox optionsRow = new HBox(20);
         optionsRow.setAlignment(Pos.CENTER_LEFT);
 
-        // Geschwindigkeits-Slider
         Label speedLabel = new Label("Geschwindigkeit:");
         speedSlider = new Slider(0.1, 3.0, 1.0);
         speedSlider.setShowTickLabels(true);
@@ -303,11 +286,10 @@ public class MainWindow extends Stage {
         Label titleLabel = new Label("Status & Energie");
         titleLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
 
-        // Zeit-Anzeige
+        // Zeit
         timeLabel = new Label("Zeit: 0.000 s");
         timeLabel.setStyle("-fx-font-size: 14px;");
 
-        // Energie-Anzeige
         energyLabel = new Label("Gesamtenergie: 0.000000 J\nAbweichung: 0.00%");
         energyLabel.setStyle("-fx-font-size: 12px;");
 
@@ -375,7 +357,6 @@ public class MainWindow extends Stage {
             public void handle(long now) {
                 if (!isRunning || isPaused) return;
 
-                // Berechne wie viel Zeit vergangen ist
                 if (lastUpdate == 0) {
                     lastUpdate = now;
                     return;
@@ -384,17 +365,14 @@ public class MainWindow extends Stage {
                 double elapsedSeconds = (now - lastUpdate) / 1_000_000_000.0;
                 lastUpdate = now;
 
-                // Begrenze die verstrichene Zeit, falls das System mal hängt
                 // Maximum 0.1 Sekunden pro Frame
                 if (elapsedSeconds > 0.1) {
                     elapsedSeconds = 0.1;
                 }
 
-                // Anzahl der Simulationsschritte basierend auf Geschwindigkeit
                 int stepsToPerform = (int) ((elapsedSeconds / TIME_STEP) * simulationSpeed);
 
-                // WICHTIG: Begrenze die Anzahl der Schritte
-                // Dies verhindert, dass bei Kollisions-Berechnungen die GUI einfriert
+
                 stepsToPerform = Math.min(stepsToPerform, MAX_STEPS_PER_FRAME);
 
                 // Führe Simulationsschritte durch
@@ -402,7 +380,6 @@ public class MainWindow extends Stage {
                     performSimulationStep();
                 }
 
-                // GUI aktualisieren
                 updateGUI();
             }
         };

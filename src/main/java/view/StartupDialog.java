@@ -17,7 +17,6 @@ import javafx.stage.Stage;
      * - Modus: Einzelpendel oder Kugelstoßpendel
      * - Physikalische Parameter: Masse, Radius, Startwinkel
      * - Für Kugelstoßpendel: Anzahl der Kugeln, Restitutionskoeffizient
-     *
      * Der Dialog validiert alle Eingaben in Echtzeit und zeigt Warnungen bei
      * ungültigen oder problematischen Werten.
      */
@@ -67,39 +66,31 @@ public class StartupDialog extends Stage {
         mainLayout.setPadding(new Insets(20));
         mainLayout.setStyle("-fx-background-color: #f0f0f0;");
 
-        // Titel
         Label titleLabel = new Label("Willkommen zur Pendelsimulation");
         titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
         Label subtitleLabel = new Label("Bitte wählen Sie den Simulationsmodus und die Parameter:");
         subtitleLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #666;");
 
-        // Trennlinie
         Separator separator1 = new Separator();
 
-        // === MODUS-AUSWAHL ===
         VBox modusBox = createModusSelection();
 
         Separator separator2 = new Separator();
 
-        // === GEMEINSAME PARAMETER ===
         VBox gemeinsameBox = createGemeinsameParameter();
 
-        // === INTEGRATOR-AUSWAHL === (NEU in Phase 3)
         VBox integratorBox = createIntegratorSelection();
 
-        // === KUGELSTOSSPENDEL-SPEZIFISCHE PARAMETER ===
         kugelstosspendelBox = createKugelstossppendelParameter();
         kugelstosspendelBox.setVisible(false);
         kugelstosspendelBox.setManaged(false);
 
-        // === WARNUNGS-LABEL ===
         warningLabel = new Label();
         warningLabel.setStyle("-fx-text-fill: #d32f2f; -fx-font-weight: bold;");
         warningLabel.setVisible(false);
         warningLabel.setWrapText(true);
 
-        // === BUTTONS ===
         HBox buttonBox = createButtons();
 
         // Alles zusammenfügen
@@ -165,7 +156,6 @@ public class StartupDialog extends Stage {
         Label label = new Label("Physikalische Parameter:");
         label.setStyle("-fx-font-weight: bold;");
 
-        // Masse
         HBox masseBox = new HBox(10);
         masseBox.setAlignment(Pos.CENTER_LEFT);
         Label massLabel = new Label("Masse der Kugel (kg):");
@@ -173,7 +163,6 @@ public class StartupDialog extends Stage {
         textMasse = createValidatedTextField("1.0", "^[0-9]*\\.?[0-9]+$");
         masseBox.getChildren().addAll(massLabel, textMasse);
 
-        // Radius
         HBox radiusBox = new HBox(10);
         radiusBox.setAlignment(Pos.CENTER_LEFT);
         Label radiusLabel = new Label("Kugelradius (m):");
@@ -181,7 +170,6 @@ public class StartupDialog extends Stage {
         textRadius = createValidatedTextField("0.025", "^[0-9]*\\.?[0-9]+$");
         radiusBox.getChildren().addAll(radiusLabel, textRadius);
 
-        // Startwinkel
         HBox winkelBox = new HBox(10);
         winkelBox.setAlignment(Pos.CENTER_LEFT);
         Label winkelLabel = new Label("Startwinkel (Grad):");
@@ -247,7 +235,7 @@ public class StartupDialog extends Stage {
         Label label = new Label("Kugelstoßpendel-Parameter:");
         label.setStyle("-fx-font-weight: bold;");
 
-        // Anzahl der Kugeln
+        // Kugelanzahl
         HBox anzahlBox = new HBox(10);
         anzahlBox.setAlignment(Pos.CENTER_LEFT);
         Label anzahlLabel = new Label("Anzahl der Kugeln:");
@@ -267,7 +255,6 @@ public class StartupDialog extends Stage {
         spinnerAusgelenkt.setPrefWidth(100);
         ausgBox.getChildren().addAll(ausgLabel, spinnerAusgelenkt);
 
-        // Automatische Korrektur: Wenn Anzahl geändert wird, passe ausgelenkt an
         spinnerAnzahlKugeln.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (spinnerAusgelenkt.getValue() > newVal) {
                 spinnerAusgelenkt.getValueFactory().setValue(newVal);
@@ -278,7 +265,6 @@ public class StartupDialog extends Stage {
             );
         });
 
-        // Restitutionskoeffizient
         HBox restBox = new HBox(10);
         restBox.setAlignment(Pos.CENTER_LEFT);
         Label restLabel = new Label("Restitutionskoeffizient:");
@@ -304,13 +290,11 @@ public class StartupDialog extends Stage {
         TextField textField = new TextField(defaultValue);
         textField.setPrefWidth(100);
 
-        // Validierung während der Eingabe
         textField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.matches(regex)) {
                 textField.setText(oldValue);
             }
 
-            // Visuelles Feedback
             if (newValue.isEmpty() || !isValidNumber(newValue)) {
                 textField.setStyle("-fx-border-color: red; -fx-border-width: 2;");
             } else {
@@ -377,7 +361,6 @@ public class StartupDialog extends Stage {
      * Wird aufgerufen, wenn der Benutzer auf "Starten" klickt.
      */
     private void onStart() {
-        // Validierung
         if (!validateInputs()) {
             return;
         }

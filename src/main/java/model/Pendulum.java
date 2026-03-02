@@ -7,16 +7,12 @@ public class Pendulum {
      */
     private static final double GRAVITY = 9.81;
 
-    //Länge des Pendels
     private double length;
 
-    //Masse der Kugel
     private double masse;
 
-    //Radius der Kugel
     private double radius;
 
-    //Zustand eines Pendels
     private PhysicsState state;
 
     /**
@@ -62,12 +58,11 @@ public class Pendulum {
      */
     public double calculateAngularAcceleration(double theta) {
         if (useSmallAngleApproximation) {
-            // Kleinwinkelnäherung: sin(θ) ≈ θ
-            // Dies ergibt: d²θ/dt² = -(g/L) * θ
+
             return -(GRAVITY / length) * theta;
         } else {
-            // Vollständige nichtlineare Gleichung
-            // Dies ergibt: d²θ/dt² = -(g/L) * sin(θ)
+            // nichtlineare Gleichung
+            // d²θ/dt² = -(g/L) * sin(θ)
             return -(GRAVITY / length) * Math.sin(theta);
         }
     }
@@ -89,10 +84,8 @@ public class Pendulum {
         double theta = currentState.getTheta();
         double omega = currentState.getOmega();
 
-        // dθ/dt = ω (die Definition der Winkelgeschwindigkeit)
         double thetaDot = omega;
 
-        // dω/dt = d²θ/dt² (die Winkelbeschleunigung aus der Bewegungsgleichung)
         double omegaDot = calculateAngularAcceleration(theta);
 
         return new PhysicsState(thetaDot, omegaDot);
@@ -181,7 +174,6 @@ public class Pendulum {
         return length * Math.cos(state.getTheta());
     }
 
-    // Getter für die Eigenschaften
 
     public double getLength() {
         return length;

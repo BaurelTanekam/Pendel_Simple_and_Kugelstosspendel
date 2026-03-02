@@ -1,6 +1,7 @@
-package simulation;
+package controller;
 
 import model.Pendulum;
+import simulation.Integrator;
 import util.Logger;
 
 public class SimulationEngine {
@@ -24,7 +25,6 @@ public class SimulationEngine {
     //Zeitschritt für die numerische Integration in Sekunden.
     private double deltaT;
 
-    //Pendel, das simuliert wird
     Pendulum pendulum;
 
     /**
@@ -33,14 +33,11 @@ public class SimulationEngine {
      */
     private Integrator integrator;
 
-    //Simulationszeit und wird bei jedem Schritt um deltaT erhöht
 
     private double currentTime;
 
-    //initiale Energie des Systems
     private double initialEnergie;
 
-    //Logger für Ausgabe und Debugging
 
     private Logger logger;
 
@@ -51,7 +48,6 @@ public class SimulationEngine {
         this.currentTime = 0.0;
         this.initialEnergie = pendulum.getTotalEnergy();
         this.logger = Logger.getInstance();
-        // Initialen Zustand loggen
         logger.logInfo(String.format(
                 "Simulation initialized: Integrator=%s, deltaT=%.4fs, Initial Energy=%.6fJ",
                 integrator.getName(), deltaT, initialEnergie
@@ -62,22 +58,18 @@ public class SimulationEngine {
      * Führt einen einzelnen Simulationsschritt durch.
      *
      * Dies ist die zentrale Methode, die in jedem Frame aufgerufen wird.
-     * Sie macht folgendes:
-     * 1. Verwendet den Integrator, um den nächsten Zustand zu berechnen
-     * 2. Erhöht die Simulationszeit um deltaT
-     * 3. Gibt den aktualisierten Zustand zurück (für Logging oder Visualisierung)
+     * Sie verwendet den Integrator, um den nächsten Zustand zu berechnen
+     * erhöht die Simulationszeit um deltaT
+     * gibt den aktualisierten Zustand für Logging oder Visualisierung zurück
      */
     public void step() {
-        // Der Integrator berechnet den neuen Zustand und aktualisiert das Pendel
         integrator.step(pendulum, deltaT);
 
-        // Zeit weiter schalten
         currentTime += deltaT;
     }
 
     /**
      * Führt mehrere Schritte hintereinander aus.
-     *
      * Dies ist praktisch für Batch-Simulationen, wo wir viele Schritte auf einmal
      * durchrechnen wollen ohne jedes Mal einzeln step() aufrufen zu müssen.
      *
@@ -161,15 +153,11 @@ public class SimulationEngine {
         logger.logInfo("Simulation completed. Energy drift: " + String.format("%.4f%%", energyDrift));
     }
 
-    // Getter für Zugriff von außen
 
     public double getCurrentTime() {
         return currentTime;
     }
 
-    public Pendulum getPendulum() {
-        return pendulum;
-    }
 
     public double getDeltaT() {
         return deltaT;

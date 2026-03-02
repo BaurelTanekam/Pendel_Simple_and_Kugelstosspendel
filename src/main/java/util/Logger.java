@@ -62,7 +62,6 @@ public class Logger {
      * Niemand kann direkt new Logger() aufrufen, sondern muss getInstance() verwenden.
      */
     private Logger() {
-        // Erstelle einen Dateinamen mit Zeitstempel
         String timestamp = LocalDateTime.now().format(
                 DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")
         );
@@ -71,13 +70,12 @@ public class Logger {
         this.debugMode = false;
         this.timeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-        // Versuche, die Log-Datei zu öffnen
         try {
             fileWriter = new PrintWriter(new FileWriter(logFileName, true), true);
             logInfo("Logger initialized. Log file: " + logFileName);
         } catch (IOException e) {
             System.err.println("ERROR: Could not create log file: " + e.getMessage());
-            // Wenn die Datei nicht erstellt werden kann, loggen wir nur in die Konsole
+
             fileWriter = null;
         }
     }
@@ -146,7 +144,6 @@ public class Logger {
      * @param showInConsole Ob die Nachricht auch in der Konsole erscheinen soll
      */
     private void log(String level, String message, boolean showInConsole) {
-        // Formatiere die Log-Zeile: [Zeitstempel] LEVEL: Nachricht
         String timestamp = LocalDateTime.now().format(timeFormatter);
         String logLine = String.format("[%s] %s: %s", timestamp, level, message);
 
