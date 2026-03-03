@@ -60,7 +60,6 @@ public class Pendulum {
             return -(GRAVITY / length) * theta;
         } else {
             // nichtlineare Gleichung
-            // d²θ/dt² = -(g/L) * sin(θ)
             return -(GRAVITY / length) * Math.sin(theta);
         }
     }
@@ -92,7 +91,6 @@ public class Pendulum {
     /**
      * Aktualisiert den Zustand des Pendels.
      * Diese Methode wird vom Integrator aufgerufen, nachdem er den nächsten Zustand berechnet hat.
-     *
      * @param newState Der neue Zustand
      */
     public void setState(PhysicsState newState) {
@@ -110,10 +108,8 @@ public class Pendulum {
 
     /**
      * Berechnet die kinetische Energie des Pendels.
-     *
      * Die kinetische Energie eines rotierenden Körpers ist:
      *     E_kin = (1/2) * I * ω²
-     *
      * Für eine Punktmasse am Faden ist das Trägheitsmoment I = m * L².
      * Also: E_kin = (1/2) * m * L² * ω²
      *
@@ -126,13 +122,10 @@ public class Pendulum {
 
     /**
      * Berechnet die potentielle Energie des Pendels.
-     *
      * Die potentielle Energie hängt von der Höhe der Masse über dem tiefsten Punkt ab.
      * Wenn θ = 0 (senkrecht nach unten), ist die potentielle Energie null (Referenzpunkt).
      * Bei Auslenkung um θ steigt die Masse um die Höhe h = L * (1 - cos(θ)).
-     *
      * Also: E_pot = m * g * h = m * g * L * (1 - cos(θ))
-     *
      * @return Die potentielle Energie in Joule
      */
     public double getPotentialEnergy() {
@@ -142,11 +135,9 @@ public class Pendulum {
 
     /**
      * Berechnet die Gesamtenergie des Pendels.
-     *
      * Nach dem Energieerhaltungssatz sollte die Gesamtenergie konstant bleiben,
      * solange keine Reibung vorhanden ist. Dies ist ein wichtiges Kriterium zur
      * Überprüfung der Qualität unserer numerischen Integration.
-     *
      * @return Die Gesamtenergie in Joule
      */
     public double getTotalEnergy() {

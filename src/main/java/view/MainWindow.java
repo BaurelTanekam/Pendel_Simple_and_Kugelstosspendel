@@ -417,7 +417,6 @@ public class MainWindow extends Stage {
             Pendulum p1 = pendulums.get(i);
             Pendulum p2 = pendulums.get(i + 1);
 
-            // --- SCHRITT 1: Konversion Polar -> Kartesisch ---
             // Hole die Positionen (P)
             double x1 = p1.getX();
             double y1 = p1.getY();
@@ -425,9 +424,6 @@ public class MainWindow extends Stage {
             double y2 = p2.getY();
 
             // Berechne die Geschwindigkeitsvektoren (V) basierend auf der Winkelgeschwindigkeit
-            // V_tangential = L * omega
-            // Vx = Ableitung von x = -L * omega * cos(theta) (da x = pivot - L*sin(theta))
-            // Vy = Ableitung von y = -L * omega * sin(theta) (da y = L*cos(theta))
             double omega1 = p1.getState().getOmega();
             double theta1 = p1.getState().getTheta();
             double vx1 = -p1.getLength() * omega1 * Math.cos(theta1);
@@ -438,8 +434,7 @@ public class MainWindow extends Stage {
             double vx2 = -p2.getLength() * omega2 * Math.cos(theta2);
             double vy2 = -p2.getLength() * omega2 * Math.sin(theta2);
 
-            // --- SCHRITT 2: C++-Logik (Vektor P12 und Abstand) ---
-            double dx = x1 - x2; // Hinweis: C++ macht p - other (p1 - p2)
+            double dx = x1 - x2;
             double dy = y1 - y2;
             double dist = Math.sqrt(dx * dx + dy * dy);
             double r_sum = p1.getRadius() + p2.getRadius();
@@ -447,74 +442,56 @@ public class MainWindow extends Stage {
             // Prüfe ob sich die Kugeln überlappen
             if (dist < r_sum) {
 
-                // Berechne den Normalenvektor (Einheitsvektor)
+                // Berechne den Normalenvektor
                 double nx = dx / dist;
                 double ny = dy / dist;
 
-                // Berechne die Eindringtiefe
                 double penetration_depth = r_sum - dist;
 
-                // --- SCHRITT 3: Positionskorrektur (Anti-Stick) ---
-                // Wie in C++: particle.p += 0.5 * depth * normal
                 // Verschiebe die Mittelpunkte virtuell, sodass sie sich nicht mehr berühren
                 double moveX = 0.5 * penetration_depth * nx;
                 double moveY = 0.5 * penetration_depth * ny;
 
-                // Neue temporäre Positionen
                 double newX1 = x1 + moveX;
                 double newY1 = y1 + moveY;
                 double newX2 = x2 - moveX; // Die andere Kugel bewegt sich in die Gegenrichtung
                 double newY2 = y2 - moveY;
 
-                // --- SCHRITT 4: Berechnung des Impulses (Geschwindigkeit) ---
                 // v_rel = dot(v1 - v2, normal)
                 double vRelX = vx1 - vx2;
                 double vRelY = vy1 - vy2;
                 double v_rel = vRelX * nx + vRelY * ny;
 
                 // Stelle sicher, dass die Kollision eine Annäherung ist (v_rel < 0)
-                // Wenn v_rel > 0, entfernen sie sich bereits, wir wenden nur die Positionskorrektur an
                 double newVx1 = vx1;
                 double newVy1 = vy1;
                 double newVx2 = vx2;
                 double newVy2 = vy2;
 
                 if (v_rel < 0) {
-                    double e = config.restitutionskoeffizient; // z.B. 1.0 oder 0.9
+                    double e = config.restitutionskoeffizient;
 
                     // Formel für den skalaren Impuls j
-                    // j = -(1 + e) * v_rel / (1/m1 + 1/m2)
                     double invMass1 = 1.0 / p1.getMass();
                     double invMass2 = 1.0 / p2.getMass();
                     double j = -(1 + e) * v_rel / (invMass1 + invMass2);
 
                     // Aktualisiere die Geschwindigkeiten (Vektoriell)
-                    // v1 = v1 + (j / m1) * normal
                     double impulseX1 = (j * invMass1) * nx;
                     double impulseY1 = (j * invMass1) * ny;
                     newVx1 += impulseX1;
                     newVy1 += impulseY1;
 
-                    // v2 = v2 - (j / m2) * normal
                     double impulseX2 = (j * invMass2) * nx;
                     double impulseY2 = (j * invMass2) * ny;
                     newVx2 -= impulseX2;
                     newVy2 -= impulseY2;
                 }
 
-                // --- SCHRITT 5: Rückkonversion Kartesisch -> Polar ---
-                // Hier speichern wir das Ergebnis in unserem Pendulum-Modell
 
-                // 5a. Wende die Positionskorrektur an (Neuberechnung von Theta)
-                // Wir müssen den neuen Winkel finden, der der neuen Position (newX, newY) entspricht
-                // Geometrie: x = pivotX - L*sin(theta)  => sin(theta) = (pivotX - x) / L
-                // Für Präzision verwenden wir atan2 mit der Position relativ zum Aufhängepunkt
-                double relX1 = p1.getPivotX() - newX1; // Achtung auf die Richtung
-                double relY1 = newY1; // Der Pivot ist bei y=0 (relativ) oder wir behalten y wie es ist wenn pivotY=0
-                // Trick: Math.asin ist einfacher wenn wir annehmen dass L konstant ist
-                // sin(theta) = (pivotX - x) / L
+                double relX1 = p1.getPivotX() - newX1;
+                double relY1 = newY1;
                 double sinTheta1 = (p1.getPivotX() - newX1) / p1.getLength();
-                // Begrenze um Rundungsfehler außerhalb von [-1, 1] zu vermeiden
                 sinTheta1 = Math.max(-1, Math.min(1, sinTheta1));
                 double newTheta1 = Math.asin(sinTheta1);
 
@@ -522,17 +499,6 @@ public class MainWindow extends Stage {
                 sinTheta2 = Math.max(-1, Math.min(1, sinTheta2));
                 double newTheta2 = Math.asin(sinTheta2);
 
-                // 5b. Wende die Geschwindigkeitskorrektur an (Neuberechnung von Omega)
-                // Omega ist die Tangentialkomponente der Geschwindigkeit geteilt durch L.
-                // Wir projizieren den Geschwindigkeitsvektor auf den Tangentialvektor.
-                // Einheitstangentialvektor bei theta: T = (-cos(theta), -sin(theta))
-                // Überprüfung: Pos = (-sin, cos). Ableitung = (-cos, -sin). Ja.
-                // Aber einfacher: Omega = (x*vy - y*vx) / (x*x + y*y) für eine Kreisbewegung?
-                // Oder einfach: V_tangential = V dot TangentVector.
-
-                // Berechnung des Einheitstangentialvektors für den NEUEN Winkel theta
-                // Wenn Pos = (Pivot - L sin, L cos)
-                // Tangente (Richtung theta positiv) = (-L cos, -L sin) normiert -> (-cos, -sin)
                 double tx1 = -Math.cos(newTheta1);
                 double ty1 = -Math.sin(newTheta1);
                 double vTangential1 = newVx1 * tx1 + newVy1 * ty1;
@@ -543,11 +509,9 @@ public class MainWindow extends Stage {
                 double vTangential2 = newVx2 * tx2 + newVy2 * ty2;
                 double newOmega2 = vTangential2 / p2.getLength();
 
-                // --- SCHRITT 6: Finale Aktualisierung der Objekte ---
                 p1.setState(new PhysicsState(newTheta1, newOmega1));
                 p2.setState(new PhysicsState(newTheta2, newOmega2));
 
-                // Logge die Kollision
                 logger.logInfo(String.format("Kollision zwischen Pendel %d und %d", i, i+1));
             }
         }
@@ -557,7 +521,6 @@ public class MainWindow extends Stage {
      * Aktualisiert alle GUI-Komponenten.
      */
     private void updateGUI() {
-        // Canvas neu zeichnen
         drawSimulation();
 
         // Zeit aktualisieren
@@ -581,7 +544,7 @@ public class MainWindow extends Stage {
                     p.getTotalEnergy(), maxEnergy);
         }
 
-        // Konsolenausgabe (nur alle 0.1s)
+        // Konsolenausgabe
         if (currentTime - Math.floor(currentTime / 0.1) * 0.1 < TIME_STEP) {
             appendToConsole(getStateString());
         }
@@ -591,15 +554,12 @@ public class MainWindow extends Stage {
      * Zeichnet die Simulation auf das Canvas.
      */
     private void drawSimulation() {
-        // Canvas leeren
         gc.setFill(Color.WHITE);
         gc.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-        // Koordinatensystem: Ursprung in der Mitte, oben
         double originX = CANVAS_WIDTH / 2.0;
         double originY = 100;
 
-        // Zeichne jedes Pendel
         for (Pendulum pendulum : pendulums) {
             drawPendulum(pendulum, originX, originY);
         }
@@ -616,12 +576,10 @@ public class MainWindow extends Stage {
         double theta = pendulum.getState().getTheta();
         double pivotX = pendulum.getPivotX();
 
-        // Aufhängepunkt in Pixel
         double pivotScreenX = originX + pivotX * scale;
         double pivotScreenY = originY;
 
-        // Kugelposition in Pixel
-        // WICHTIG: getX() gibt bereits die korrekte Position mit der Formel x = pivotX - L*sin(θ)
+
         double ballX = pendulum.getX();
         double ballY = pendulum.getY();
         double ballScreenX = originX + ballX * scale;
@@ -661,10 +619,9 @@ public class MainWindow extends Stage {
         gc.setStroke(Color.RED);
         gc.setLineWidth(3);
 
-        double arrowLength = 50; // Fixe Länge
+        double arrowLength = 50;
         gc.strokeLine(x, y, x, y + arrowLength);
 
-        // Pfeilspitze
         gc.strokeLine(x, y + arrowLength, x - 5, y + arrowLength - 10);
         gc.strokeLine(x, y + arrowLength, x + 5, y + arrowLength - 10);
 
@@ -698,7 +655,6 @@ public class MainWindow extends Stage {
         consoleOutput.setScrollTop(Double.MAX_VALUE);
     }
 
-    // === KONTROLL-METHODEN ===
 
     private void startSimulation() {
         isRunning = true;

@@ -19,33 +19,23 @@ public class HeunIntegrator implements Integrator{
      */
     @Override
     public void step(Pendulum pendulum, double deltaT) {
-        // Aktuelle Ableitung k1 berechnen
         PhysicsState currentState = pendulum.getState();
         PhysicsState k1 = pendulum.calculateDerivative(currentState);
 
-        // Prädiktor-Schritt (vorläufiger Euler-Schritt)
-        // Wir machen einen provisorischen Schritt mit der Steigung k₁
-        // Dies gibt uns eine Schätzung, wo wir am Ende des Intervalls sein werden
+
         PhysicsState predictedState = currentState.add(k1.multiply(deltaT));
 
-        // Ableitung am prädizierten Punkt k₂ berechnen
-        // Jetzt schauen wir, wie die Steigung am Ende des Intervalls aussehen würde
-        // Dafür müssen wir temporär das Pendel auf den prädizierten Zustand setzen
-        PhysicsState originalState = pendulum.getState(); // Sichern für später
-        pendulum.setState(predictedState); // Temporär setzen
-        PhysicsState k2 = pendulum.calculateDerivative(predictedState);
-        pendulum.setState(originalState); // Zurücksetzen auf Original
 
-        // Korrektor-Schritt (Durchschnitt der Steigungen)
-        // Statt nur k₁ zu verwenden (wie Euler), nehmen wir den Durchschnitt
-        // von k₁ (Steigung am Anfang) und k₂ (Steigung am Ende)
-        // Dies gibt uns eine viel bessere Approximation der durchschnittlichen Steigung
+        PhysicsState originalState = pendulum.getState();
+        pendulum.setState(predictedState);
+        PhysicsState k2 = pendulum.calculateDerivative(predictedState);
+        pendulum.setState(originalState);
+
+
         PhysicsState averageDerivative = k1.add(k2).multiply(0.5);
 
-        // Berechne den neuen Zustand mit der durchschnittlichen Steigung
         PhysicsState newState = pendulum.getState().add(averageDerivative.multiply(deltaT));
 
-        // Neuen Zustand setzen
         pendulum.setState(newState);
     }
 

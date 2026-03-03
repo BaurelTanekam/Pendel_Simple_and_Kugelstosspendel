@@ -22,21 +22,18 @@ import javafx.stage.Stage;
      */
 public class StartupDialog extends Stage {
 
-    // Ergebnis-Objekt, das die Konfiguration speichert
     private SimulationConfig config;
 
-    // UI-Komponenten für Einzelpendel
     private RadioButton radioEinzelpendel;
     private RadioButton radioKugelstosspendel;
 
-    // Gemeinsame Parameter
     private TextField textMasse;
     private TextField textRadius;
     private TextField textStartwinkel;
 
     private ComboBox<String> comboIntegrator;
 
-    // Parameter nur für Kugelstoßpendel
+    // nur für Kugelstoßpendel
     private Spinner<Integer> spinnerAnzahlKugeln;
     private Spinner<Integer> spinnerAusgelenkt;
     private TextField textRestitution;
@@ -44,7 +41,6 @@ public class StartupDialog extends Stage {
     // Container für Kugelstoßpendel-Parameter
     private VBox kugelstosspendelBox;
 
-    // Warnungs-Label für große Winkel
     private Label warningLabel;
 
     /**
@@ -129,7 +125,6 @@ public class StartupDialog extends Stage {
         radioKugelstosspendel = new RadioButton("Kugelstoßpendel (Newton's Cradle)");
         radioKugelstosspendel.setToggleGroup(modusGroup);
 
-        // Event-Handler für Modus-Wechsel
         radioEinzelpendel.setOnAction(e -> {
             kugelstosspendelBox.setVisible(false);
             kugelstosspendelBox.setManaged(false);
@@ -345,7 +340,6 @@ public class StartupDialog extends Stage {
         Button btnStart = new Button("Simulation starten");
         btnStart.setStyle("-fx-background-color: #4caf50; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;");
         btnStart.setOnAction(e -> onStart());
-
         Button btnAbbrechen = new Button("Abbrechen");
         btnAbbrechen.setStyle("-fx-padding: 10 20;");
         btnAbbrechen.setOnAction(e -> {

@@ -22,7 +22,6 @@ public class SimulationEngine {
      * In Phase 2 wird die GUI diese Engine steuern und ihre Ergebnisse visualisieren.
      */
 
-    //Zeitschritt für die numerische Integration in Sekunden.
     private double deltaT;
 
     Pendulum pendulum;
